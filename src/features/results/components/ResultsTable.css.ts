@@ -23,6 +23,7 @@ export const table = style({
   borderCollapse: 'collapse',
   fontFamily: vars.fontFamily.mono,
   fontSize: vars.fontSize.sm,
+  userSelect: 'none',
 })
 
 export const th = style({
@@ -76,6 +77,36 @@ export const tdEditing = style([
   {
     padding: 0,
     overflow: 'visible',
+  },
+])
+
+export const tdSelected = style([
+  td,
+  {
+    backgroundColor: 'rgba(0, 122, 204, 0.15)',
+    cursor: 'default',
+    outline: 'none',
+  },
+])
+
+export const tdFocus = style([
+  td,
+  {
+    backgroundColor: 'rgba(0, 122, 204, 0.3)',
+    cursor: 'default',
+    outline: `1px solid ${vars.color.primary}`,
+    outlineOffset: '-1px',
+  },
+])
+
+export const tdCopied = style([
+  td,
+  {
+    backgroundColor: 'rgba(137, 209, 133, 0.2)',
+    color: vars.color.success,
+    cursor: 'default',
+    outline: 'none',
+    transition: 'background-color 0.3s ease, color 0.3s ease',
   },
 ])
 

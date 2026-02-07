@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { useResultsStore } from '../stores/resultsStore'
 import * as styles from './ResultsTable.css'
@@ -16,8 +16,24 @@ interface EditingCell {
   value: string
 }
 
+interface Selection {
+  anchorRow: number
+  anchorCell: number
+  focusRow: number
+  focusCell: number
+}
+
 interface ResultsTableProps {
   onAddWhereClause?: (column: string, value: unknown) => void
+}
+
+function getSelectionBounds(sel: Selection) {
+  return {
+    minRow: Math.min(sel.anchorRow, sel.focusRow),
+    maxRow: Math.max(sel.anchorRow, sel.focusRow),
+    minCell: Math.min(sel.anchorCell, sel.focusCell),
+    maxCell: Math.max(sel.anchorCell, sel.focusCell),
+  }
 }
 
 export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
@@ -26,8 +42,54 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null)
   const [modifications, setModifications] = useState<Map<string, CellEdit>>(new Map())
+  const [selection, setSelection] = useState<Selection | null>(null)
+  const [copiedCells, setCopiedCells] = useState<Set<string> | null>(null)
+  const isDragging = useRef(false)
 
   const getCellKey = (rowIndex: number, cellIndex: number) => `${rowIndex}-${cellIndex}`
+
+  const isCellInSelection = useCallback(
+    (rowIndex: number, cellIndex: number): boolean => {
+      if (!selection) return false
+      const { minRow, maxRow, minCell, maxCell } = getSelectionBounds(selection)
+      return rowIndex >= minRow && rowIndex <= maxRow && cellIndex >= minCell && cellIndex <= maxCell
+    },
+    [selection]
+  )
+
+  const isFocusCell = useCallback(
+    (rowIndex: number, cellIndex: number): boolean => {
+      if (!selection) return false
+      return rowIndex === selection.focusRow && cellIndex === selection.focusCell
+    },
+    [selection]
+  )
+
+  const isMultiSelection = useCallback((): boolean => {
+    if (!selection) return false
+    return selection.anchorRow !== selection.focusRow || selection.anchorCell !== selection.focusCell
+  }, [selection])
+
+  const selectCell = useCallback((rowIndex: number, cellIndex: number) => {
+    setSelection({ anchorRow: rowIndex, anchorCell: cellIndex, focusRow: rowIndex, focusCell: cellIndex })
+  }, [])
+
+  const extendSelection = useCallback(
+    (focusRow: number, focusCell: number) => {
+      setSelection((prev) => (prev ? { ...prev, focusRow, focusCell } : null))
+    },
+    []
+  )
+
+  const focusElement = useCallback(
+    (rowIndex: number, cellIndex: number) => {
+      const el = tableRef.current?.querySelector(
+        `[data-row="${rowIndex}"][data-cell="${cellIndex}"]`
+      ) as HTMLElement | null
+      el?.focus()
+    },
+    []
+  )
 
   const startEditing = useCallback(
     (rowIndex: number, cellIndex: number, currentValue: unknown) => {
@@ -35,11 +97,7 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
       const existingMod = modifications.get(key)
       const value = existingMod ? existingMod.newValue : formatCell(currentValue)
 
-      setEditingCell({
-        rowIndex,
-        cellIndex,
-        value,
-      })
+      setEditingCell({ rowIndex, cellIndex, value })
 
       setTimeout(() => {
         inputRef.current?.focus()
@@ -60,12 +118,7 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
     if (value !== originalFormatted) {
       setModifications((prev) => {
         const next = new Map(prev)
-        next.set(key, {
-          rowIndex,
-          cellIndex,
-          originalValue,
-          newValue: value,
-        })
+        next.set(key, { rowIndex, cellIndex, originalValue, newValue: value })
         return next
       })
     } else {
@@ -110,6 +163,66 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
     [commitEdit, cancelEdit, results, editingCell, startEditing]
   )
 
+  const getCellValue = (rowIndex: number, cellIndex: number, originalValue: unknown): string => {
+    const key = getCellKey(rowIndex, cellIndex)
+    const mod = modifications.get(key)
+    return mod ? mod.newValue : formatCell(originalValue)
+  }
+
+  const copySelection = useCallback(() => {
+    if (!selection || !results) return
+
+    const { minRow, maxRow, minCell, maxCell } = getSelectionBounds(selection)
+
+    const lines: string[] = []
+    const keys = new Set<string>()
+
+    for (let r = minRow; r <= maxRow; r++) {
+      const cells: string[] = []
+      for (let c = minCell; c <= maxCell; c++) {
+        cells.push(getCellValue(r, c, results.rows[r][c]))
+        keys.add(getCellKey(r, c))
+      }
+      lines.push(cells.join('\t'))
+    }
+
+    navigator.clipboard.writeText(lines.join('\n'))
+    setCopiedCells(keys)
+    setTimeout(() => setCopiedCells(null), 600)
+  }, [selection, results, modifications])
+
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent, rowIndex: number, cellIndex: number) => {
+      if (e.button !== 0) return
+      e.preventDefault()
+      const target = e.currentTarget as HTMLElement
+      target.focus()
+      if (e.shiftKey && selection) {
+        extendSelection(rowIndex, cellIndex)
+      } else {
+        selectCell(rowIndex, cellIndex)
+      }
+      isDragging.current = true
+    },
+    [selection, selectCell, extendSelection]
+  )
+
+  const handleMouseEnter = useCallback(
+    (rowIndex: number, cellIndex: number) => {
+      if (!isDragging.current) return
+      extendSelection(rowIndex, cellIndex)
+    },
+    [extendSelection]
+  )
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      isDragging.current = false
+    }
+    window.addEventListener('mouseup', handleMouseUp)
+    return () => window.removeEventListener('mouseup', handleMouseUp)
+  }, [])
+
   const handleKeyDown = useCallback(
     (
       e: React.KeyboardEvent<HTMLTableCellElement>,
@@ -118,6 +231,29 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
       column: string,
       value: unknown
     ) => {
+      if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        copySelection()
+        return
+      }
+
+      if (e.key === 'a' && (e.metaKey || e.ctrlKey) && results) {
+        e.preventDefault()
+        setSelection({
+          anchorRow: 0,
+          anchorCell: 0,
+          focusRow: results.rows.length - 1,
+          focusCell: results.columns.length - 1,
+        })
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        selectCell(rowIndex, cellIndex)
+        return
+      }
+
       if (e.key === ';' && e.metaKey && onAddWhereClause) {
         e.preventDefault()
         onAddWhereClause(column, value)
@@ -153,12 +289,16 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
       }
 
       e.preventDefault()
-      const nextElement = tableRef.current?.querySelector(
-        `[data-row="${nextRow}"][data-cell="${nextCell}"]`
-      ) as HTMLElement | null
-      nextElement?.focus()
+
+      if (e.shiftKey) {
+        extendSelection(nextRow, nextCell)
+        focusElement(nextRow, nextCell)
+      } else {
+        selectCell(nextRow, nextCell)
+        focusElement(nextRow, nextCell)
+      }
     },
-    [onAddWhereClause, results, startEditing]
+    [copySelection, onAddWhereClause, results, startEditing, selectCell, extendSelection, focusElement]
   )
 
   const handleDoubleClick = useCallback(
@@ -168,19 +308,21 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
     [startEditing]
   )
 
-  const getCellValue = (rowIndex: number, cellIndex: number, originalValue: unknown): string => {
-    const key = getCellKey(rowIndex, cellIndex)
-    const mod = modifications.get(key)
-    return mod ? mod.newValue : formatCell(originalValue)
-  }
-
   const isCellModified = (rowIndex: number, cellIndex: number): boolean => {
-    const key = getCellKey(rowIndex, cellIndex)
-    return modifications.has(key)
+    return modifications.has(getCellKey(rowIndex, cellIndex))
   }
 
-  const isEditing = (rowIndex: number, cellIndex: number): boolean => {
+  const isEditingCell = (rowIndex: number, cellIndex: number): boolean => {
     return editingCell?.rowIndex === rowIndex && editingCell?.cellIndex === cellIndex
+  }
+
+  const getCellStyle = (rowIndex: number, cellIndex: number): string => {
+    const key = getCellKey(rowIndex, cellIndex)
+    if (copiedCells?.has(key)) return styles.tdCopied
+    if (isFocusCell(rowIndex, cellIndex) && isMultiSelection()) return styles.tdFocus
+    if (isCellInSelection(rowIndex, cellIndex)) return styles.tdSelected
+    if (isCellModified(rowIndex, cellIndex)) return styles.tdModified
+    return styles.tdFocusable
   }
 
   if (isExecuting) {
@@ -248,7 +390,7 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
             {results.rows.map((row, rowIndex) => (
               <tr key={rowIndex} className={styles.tr}>
                 {row.map((cell, cellIndex) => {
-                  if (isEditing(rowIndex, cellIndex)) {
+                  if (isEditingCell(rowIndex, cellIndex)) {
                     return (
                       <td key={cellIndex} className={styles.tdEditing}>
                         <input
@@ -268,20 +410,15 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
                     )
                   }
 
-                  const modified = isCellModified(rowIndex, cellIndex)
-                  const cellStyle = modified
-                    ? styles.tdModified
-                    : onAddWhereClause
-                      ? styles.tdFocusable
-                      : styles.td
-
                   return (
                     <td
                       key={cellIndex}
                       data-row={rowIndex}
                       data-cell={cellIndex}
-                      className={cellStyle}
+                      className={getCellStyle(rowIndex, cellIndex)}
                       tabIndex={0}
+                      onMouseDown={(e) => handleMouseDown(e, rowIndex, cellIndex)}
+                      onMouseEnter={() => handleMouseEnter(rowIndex, cellIndex)}
                       onKeyDown={(e) =>
                         handleKeyDown(e, rowIndex, cellIndex, results.columns[cellIndex], cell)
                       }

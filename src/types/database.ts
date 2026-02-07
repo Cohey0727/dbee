@@ -14,6 +14,7 @@ export const tableSchemaSchema = z.object({
 
 export const databaseSchemaSchema = z.object({
   tables: z.array(tableSchemaSchema),
+  views: z.array(tableSchemaSchema),
 })
 
 export const queryResultSchema = z.object({

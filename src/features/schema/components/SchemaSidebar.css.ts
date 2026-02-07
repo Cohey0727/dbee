@@ -23,25 +23,71 @@ export const header = style({
   flexShrink: 0,
 })
 
-export const title = style({
+export const headerTitle = style({
   fontSize: vars.fontSize.sm,
   fontWeight: 600,
-  color: vars.color.foregroundSecondary,
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px',
+  color: vars.color.foreground,
 })
 
 export const content = style({
   flex: 1,
   minHeight: 0,
   overflow: 'auto',
+})
+
+export const section = style({
+  display: 'flex',
+  flexDirection: 'column',
+})
+
+export const sectionHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.space.xs,
+  padding: `6px ${vars.space.md}`,
+  cursor: 'pointer',
+  color: vars.color.foregroundSecondary,
+  fontSize: vars.fontSize.xs,
+  fontWeight: 600,
+  letterSpacing: '0.04em',
+  textTransform: 'uppercase',
+  transition: 'color 0.15s ease',
+  userSelect: 'none',
+  borderBottom: `1px solid ${vars.color.border}`,
+
+  ':hover': {
+    color: vars.color.foreground,
+  },
+})
+
+export const sectionChevron = style({
+  flexShrink: 0,
+  transition: 'transform 0.15s ease',
+})
+
+export const sectionChevronOpen = style([
+  sectionChevron,
+  {
+    transform: 'rotate(90deg)',
+  },
+])
+
+export const sectionCount = style({
+  marginLeft: 'auto',
+  fontSize: vars.fontSize.xs,
+  color: vars.color.foregroundSecondary,
+  opacity: 0.6,
+  fontWeight: 400,
+})
+
+export const sectionContent = style({
   padding: vars.space.xs,
 })
 
 export const tableItem = style({
   display: 'flex',
   flexDirection: 'column',
-  marginBottom: vars.space.xs,
+  marginBottom: '1px',
 })
 
 export const tableHeader = style({
@@ -72,12 +118,18 @@ export const tableIcon = style({
   flexShrink: 0,
 })
 
+export const viewIcon = style({
+  color: vars.color.success,
+  flexShrink: 0,
+})
+
 export const tableName = style({
   flex: 1,
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   fontFamily: vars.fontFamily.mono,
+  fontSize: vars.fontSize.xs,
 })
 
 export const chevron = style({
