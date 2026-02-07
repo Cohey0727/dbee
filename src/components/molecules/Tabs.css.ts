@@ -30,6 +30,7 @@ export const tab = style({
   backgroundColor: 'transparent',
   color: vars.color.foregroundSecondary,
   cursor: 'pointer',
+  border: 'none',
   borderRight: `1px solid ${vars.color.border}`,
   fontSize: vars.fontSize.sm,
   transition: 'background-color 0.15s ease, color 0.15s ease',

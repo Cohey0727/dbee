@@ -9,7 +9,6 @@ export const button = style({
   gap: vars.space.xs,
   border: 'none',
   borderRadius: vars.radius.md,
-  fontFamily: vars.fontFamily.base,
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
   transition: 'background-color 0.15s ease, color 0.15s ease',

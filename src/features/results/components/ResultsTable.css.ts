@@ -71,6 +71,41 @@ export const tdFocusable = style([
   },
 ])
 
+export const tdEditing = style([
+  td,
+  {
+    padding: 0,
+    overflow: 'visible',
+  },
+])
+
+export const tdModified = style([
+  td,
+  {
+    backgroundColor: 'rgba(137, 209, 133, 0.15)',
+    cursor: 'default',
+    outline: 'none',
+
+    ':focus': {
+      backgroundColor: vars.color.primary,
+      color: vars.color.background,
+    },
+  },
+])
+
+export const cellInput = style({
+  width: '100%',
+  height: '100%',
+  padding: `${vars.space.xs} ${vars.space.md}`,
+  backgroundColor: vars.color.background,
+  border: `2px solid ${vars.color.primary}`,
+  borderRadius: 0,
+  color: vars.color.foreground,
+  fontFamily: vars.fontFamily.mono,
+  fontSize: vars.fontSize.sm,
+  outline: 'none',
+})
+
 export const message = style({
   display: 'flex',
   flexDirection: 'column',

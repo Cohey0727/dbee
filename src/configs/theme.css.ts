@@ -70,13 +70,13 @@ export const darkTheme = createTheme(vars, {
     xl: '16px',
   },
   fontFamily: {
-    base: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    mono: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Menlo, monospace',
+    base: '"Nunito Sans", "Hiragino Maru Gothic Pro", "Rounded Mplus 1c", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    mono: '"Fira Code", "JetBrains Mono", "Cascadia Code", "Roboto Mono", Menlo, monospace',
   },
   radius: {
-    sm: '2px',
-    md: '4px',
-    lg: '8px',
+    sm: '6px',
+    md: '10px',
+    lg: '16px',
   },
 })
 
@@ -84,6 +84,7 @@ globalStyle('*, *::before, *::after', {
   boxSizing: 'border-box',
   margin: 0,
   padding: 0,
+  fontFamily: 'inherit',
 })
 
 globalStyle('html, body', {
