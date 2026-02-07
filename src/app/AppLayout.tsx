@@ -4,6 +4,7 @@ import { Tabs } from '../components/molecules/Tabs'
 import { SplitPane } from '../components/molecules/SplitPane'
 import { TitleBar } from '../components/organisms/TitleBar'
 import { StatusBar } from '../components/organisms/StatusBar'
+import { AiPanel } from '../features/ai/components/AiPanel'
 import { SqlEditor, type SqlEditorHandle } from '../features/editor/components/SqlEditor'
 import { ResultsTable } from '../features/results/components/ResultsTable'
 import { SchemaSidebar } from '../features/schema/components/SchemaSidebar'
@@ -70,6 +71,8 @@ export function AppLayout() {
             </SplitPane>
           </Tabs>
         </div>
+
+        <AiPanel />
       </div>
 
       <StatusBar />

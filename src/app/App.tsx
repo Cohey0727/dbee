@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { darkTheme } from '../configs/theme.css'
+import { AiProvider } from '../features/ai/stores/aiStore'
 import { ConnectionsProvider } from '../features/connections/stores/connectionsStore'
 import { EditorProvider } from '../features/editor/stores/editorStore'
 import { SchemaProvider, useSchemaStore } from '../features/schema/stores/schemaStore'
@@ -31,15 +32,17 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SchemaProvider>
-        <ConnectionsProvider>
-          <EditorProvider>
-            <ResultsProvider>
-              <div className={darkTheme}>
-                <AppContent />
-              </div>
-            </ResultsProvider>
-          </EditorProvider>
-        </ConnectionsProvider>
+        <AiProvider>
+          <ConnectionsProvider>
+            <EditorProvider>
+              <ResultsProvider>
+                <div className={darkTheme}>
+                  <AppContent />
+                </div>
+              </ResultsProvider>
+            </EditorProvider>
+          </ConnectionsProvider>
+        </AiProvider>
       </SchemaProvider>
     </QueryClientProvider>
   )

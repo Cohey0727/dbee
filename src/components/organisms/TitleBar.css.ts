@@ -40,3 +40,7 @@ const spin = keyframes({
 export const spinning = style({
   animation: `${spin} 1s linear infinite`,
 })
+
+export const activeToggle = style({
+  backgroundColor: vars.color.backgroundTertiary,
+})
