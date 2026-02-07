@@ -41,22 +41,24 @@ export function ConnectionCard({ connection, onConnect, onEdit, onDelete }: Conn
       role="button"
       tabIndex={0}
     >
-      <div className={styles.icon}>
-        <Database size={20} />
+      <div className={styles.cardHeader}>
+        <div className={styles.icon}>
+          <Database size={18} />
+        </div>
+        <div className={styles.actions}>
+          <button className={styles.actionButton} onClick={handleEdit} title="Edit connection">
+            <Pencil size={13} />
+          </button>
+          <button className={styles.deleteButton} onClick={handleDelete} title="Delete connection">
+            <Trash2 size={13} />
+          </button>
+        </div>
       </div>
       <div className={styles.info}>
         <div className={styles.name}>{connection.name}</div>
         <div className={styles.details}>
           {connection.host}:{connection.port}/{connection.database}
         </div>
-      </div>
-      <div className={styles.actions}>
-        <button className={styles.actionButton} onClick={handleEdit} title="Edit connection">
-          <Pencil size={14} />
-        </button>
-        <button className={styles.deleteButton} onClick={handleDelete} title="Delete connection">
-          <Trash2 size={14} />
-        </button>
       </div>
     </div>
   )

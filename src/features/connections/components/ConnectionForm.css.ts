@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css'
+import { keyframes, style } from '@vanilla-extract/css'
 
 import { vars } from '../../../configs/theme.css'
 
@@ -8,7 +8,8 @@ export const overlay = style({
   left: 0,
   right: 0,
   bottom: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  backdropFilter: 'blur(4px)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -21,14 +22,14 @@ export const modal = style({
   backgroundColor: vars.color.backgroundSecondary,
   borderRadius: vars.radius.lg,
   border: `1px solid ${vars.color.border}`,
-  boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)',
+  boxShadow: '0 16px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03)',
 })
 
 export const header = style({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  padding: vars.space.md,
+  padding: `${vars.space.md} ${vars.space.lg}`,
   borderBottom: `1px solid ${vars.color.border}`,
 })
 
@@ -59,7 +60,7 @@ export const closeButton = style({
 })
 
 export const form = style({
-  padding: vars.space.md,
+  padding: vars.space.lg,
   display: 'flex',
   flexDirection: 'column',
   gap: vars.space.md,
@@ -80,7 +81,7 @@ export const fieldRow = style({
 export const label = style({
   fontSize: vars.fontSize.sm,
   fontWeight: 500,
-  color: vars.color.foreground,
+  color: vars.color.foregroundSecondary,
 })
 
 export const input = style({
@@ -89,14 +90,15 @@ export const input = style({
   padding: `0 ${vars.space.sm}`,
   backgroundColor: vars.color.background,
   border: `1px solid ${vars.color.border}`,
-  borderRadius: vars.radius.md,
+  borderRadius: vars.radius.sm,
   color: vars.color.foreground,
   fontSize: vars.fontSize.sm,
   outline: 'none',
-  transition: 'border-color 0.15s ease',
+  transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
 
   ':focus': {
     borderColor: vars.color.borderFocus,
+    boxShadow: '0 0 0 2px rgba(0, 122, 204, 0.15)',
   },
 
   '::placeholder': {
@@ -126,6 +128,11 @@ export const footerRight = style({
   gap: vars.space.sm,
 })
 
+const spin = keyframes({
+  from: { transform: 'rotate(0deg)' },
+  to: { transform: 'rotate(360deg)' },
+})
+
 export const testStatus = style({
   fontSize: vars.fontSize.sm,
   display: 'flex',
@@ -153,3 +160,7 @@ export const testLoading = style([
     color: vars.color.foregroundSecondary,
   },
 ])
+
+export const spinAnimation = style({
+  animation: `${spin} 1s linear infinite`,
+})

@@ -180,7 +180,7 @@ export function ConnectionForm({ connection, onSave, onTest, onClose }: Connecti
               )}
               {testStatus === 'testing' && (
                 <span className={styles.testLoading}>
-                  <Loader2 size={14} />
+                  <Loader2 size={14} className={styles.spinAnimation} />
                 </span>
               )}
             </div>

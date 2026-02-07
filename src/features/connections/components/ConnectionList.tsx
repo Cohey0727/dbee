@@ -1,7 +1,6 @@
-import { Database, Plus } from 'lucide-react'
+import { Database, Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
 
-import { Button } from '../../../components/atoms/Button'
 import type { SavedConnection } from '../../../types/database'
 import { useConnections } from '../hooks/useConnections'
 import { ConnectionCard } from './ConnectionCard'
@@ -64,45 +63,61 @@ export function ConnectionList() {
   if (isLoading && connections.length === 0) {
     return (
       <div className={styles.container}>
-        <div className={styles.loadingState}>Loading connections...</div>
+        <div className={styles.loadingState}>
+          <Loader2 size={24} className={styles.loadingSpinner} />
+          <span>Loading connections...</span>
+        </div>
       </div>
     )
   }
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Connections</h1>
-        <Button variant="primary" onClick={handleNewConnection}>
-          <Plus size={16} />
-          New Connection
-        </Button>
+      <div className={styles.hero}>
+        <div className={styles.logoContainer}>
+          <Database size={32} strokeWidth={1.5} />
+        </div>
+        <h1 className={styles.appName}>DBee</h1>
+        <p className={styles.tagline}>PostgreSQL Database Client</p>
       </div>
 
-      <div className={styles.content}>
+      <div className={styles.main}>
         {error && <div className={styles.errorState}>{error}</div>}
 
         {connections.length === 0 ? (
-          <div className={styles.emptyState}>
-            <Database size={48} strokeWidth={1} />
-            <p className={styles.emptyText}>No saved connections yet</p>
-            <Button variant="primary" onClick={handleNewConnection}>
-              <Plus size={16} />
-              Add Connection
-            </Button>
-          </div>
+          <>
+            <div className={styles.emptyState}>
+              <p className={styles.emptyText}>No saved connections yet</p>
+              <p className={styles.emptyHint}>Create your first connection to get started</p>
+            </div>
+            <div className={styles.connectionGrid}>
+              <button className={styles.newConnectionCard} onClick={handleNewConnection} type="button">
+                <Plus size={24} />
+                <span>New Connection</span>
+              </button>
+            </div>
+          </>
         ) : (
-          <div className={styles.connectionsList}>
-            {connections.map((connection) => (
-              <ConnectionCard
-                key={connection.id}
-                connection={connection}
-                onConnect={handleConnect}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionTitle}>Connections</span>
+            </div>
+            <div className={styles.connectionGrid}>
+              {connections.map((connection) => (
+                <ConnectionCard
+                  key={connection.id}
+                  connection={connection}
+                  onConnect={handleConnect}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              ))}
+              <button className={styles.newConnectionCard} onClick={handleNewConnection} type="button">
+                <Plus size={24} />
+                <span>New Connection</span>
+              </button>
+            </div>
+          </>
         )}
       </div>
 
