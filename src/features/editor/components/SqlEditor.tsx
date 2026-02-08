@@ -9,11 +9,37 @@ import * as styles from './SqlEditor.css'
 interface SqlEditorProps {
   value: string
   onChange: (value: string) => void
-  onExecute: () => void
+  onExecute: (query: string) => void
 }
 
 export interface SqlEditorHandle {
   focusAtEnd: () => void
+}
+
+function getStatementAtCursor(content: string, offset: number): string {
+  const statements: { start: number; end: number; text: string }[] = []
+  let current = 0
+
+  for (const raw of content.split(';')) {
+    const start = current
+    const end = current + raw.length
+    const text = raw.trim()
+    if (text.length > 0) {
+      statements.push({ start, end, text })
+    }
+    current = end + 1 // +1 for the semicolon
+  }
+
+  if (statements.length === 0) return content.trim()
+
+  for (const stmt of statements) {
+    if (offset >= stmt.start && offset <= stmt.end + 1) {
+      return stmt.text
+    }
+  }
+
+  // Fallback: return the last statement
+  return statements[statements.length - 1].text
 }
 
 export const SqlEditor = forwardRef<SqlEditorHandle, SqlEditorProps>(function SqlEditor(
@@ -52,7 +78,17 @@ export const SqlEditor = forwardRef<SqlEditorHandle, SqlEditorProps>(function Sq
       registerSqlCompletions(monaco, schema)
 
       editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-        onExecuteRef.current()
+        const model = editor.getModel()
+        if (!model) return
+
+        const position = editor.getPosition()
+        if (!position) return
+
+        const offset = model.getOffsetAt(position)
+        const fullContent = model.getValue()
+        const statement = getStatementAtCursor(fullContent, offset)
+
+        onExecuteRef.current(statement)
       })
 
       editor.focus()

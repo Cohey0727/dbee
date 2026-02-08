@@ -1,15 +1,17 @@
 import { Send, Settings, Trash2, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 import { useAiChat } from '../hooks/useAiChat'
 import { AiSettings } from './AiSettings'
+import { CodeBlock } from './CodeBlock'
 import * as styles from './AiPanel.css'
 
 export function AiPanel() {
   const {
     messages,
     isLoading,
-    isPanelOpen,
     settings,
     error,
     defaultModels,
@@ -41,15 +43,13 @@ export function AiPanel() {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key === 'Enter' && e.metaKey) {
         e.preventDefault()
         handleSend()
       }
     },
     [handleSend]
   )
-
-  if (!isPanelOpen) return null
 
   const hasApiKey = settings?.hasApiKey ?? false
 
@@ -97,7 +97,15 @@ export function AiPanel() {
               key={i}
               className={msg.role === 'user' ? styles.userMessage : styles.assistantMessage}
             >
-              {msg.content}
+              {msg.role === 'assistant' ? (
+                <div className={styles.markdown}>
+                  <Markdown remarkPlugins={[remarkGfm]} components={{ pre: CodeBlock }}>
+                    {msg.content}
+                  </Markdown>
+                </div>
+              ) : (
+                msg.content
+              )}
             </div>
           ))}
 

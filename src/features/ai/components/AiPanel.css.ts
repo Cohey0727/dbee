@@ -1,12 +1,13 @@
-import { keyframes, style } from '@vanilla-extract/css'
+import { globalStyle, keyframes, style } from '@vanilla-extract/css'
 
 import { vars } from '../../../configs/theme.css'
 
 export const panel = style({
   display: 'flex',
   flexDirection: 'column',
-  width: '320px',
-  minWidth: '320px',
+  width: '100%',
+  minWidth: '240px',
+  maxWidth: '560px',
   borderLeft: `1px solid ${vars.color.border}`,
   backgroundColor: vars.color.backgroundSecondary,
   overflow: 'hidden',
@@ -87,6 +88,7 @@ export const assistantMessage = style([
     alignSelf: 'flex-start',
     backgroundColor: vars.color.backgroundTertiary,
     color: vars.color.foreground,
+    whiteSpace: 'normal',
   },
 ])
 
@@ -155,7 +157,7 @@ export const emptyState = style({
   padding: vars.space.lg,
   textAlign: 'center',
   color: vars.color.foregroundSecondary,
-  fontSize: vars.fontSize.sm,
+  fontSize: vars.fontSize.md,
   gap: vars.space.sm,
 })
 
@@ -191,4 +193,91 @@ export const dot = style({
     '&:nth-child(2)': { animationDelay: '0.2s' },
     '&:nth-child(3)': { animationDelay: '0.4s' },
   },
+})
+
+export const markdown = style({
+  fontSize: vars.fontSize.sm,
+  lineHeight: 1.6,
+})
+
+globalStyle(`${markdown} > *:first-child`, {
+  marginTop: 0,
+})
+
+globalStyle(`${markdown} > *:last-child`, {
+  marginBottom: 0,
+})
+
+globalStyle(`${markdown} p`, {
+  margin: `${vars.space.xs} 0`,
+})
+
+globalStyle(`${markdown} code`, {
+  fontFamily: vars.fontFamily.mono,
+  fontSize: vars.fontSize.xs,
+})
+
+globalStyle(`${markdown} :not(pre) > code`, {
+  padding: '1px 4px',
+  backgroundColor: vars.color.background,
+  borderRadius: '3px',
+})
+
+globalStyle(`${markdown} ul, ${markdown} ol`, {
+  margin: `${vars.space.xs} 0`,
+  paddingLeft: vars.space.md,
+})
+
+globalStyle(`${markdown} li`, {
+  margin: `2px 0`,
+})
+
+globalStyle(`${markdown} h1, ${markdown} h2, ${markdown} h3, ${markdown} h4`, {
+  margin: `${vars.space.sm} 0 ${vars.space.xs}`,
+  fontWeight: 600,
+  lineHeight: 1.3,
+})
+
+globalStyle(`${markdown} h1`, { fontSize: vars.fontSize.xl })
+globalStyle(`${markdown} h2`, { fontSize: vars.fontSize.lg })
+globalStyle(`${markdown} h3`, { fontSize: vars.fontSize.md })
+
+globalStyle(`${markdown} table`, {
+  borderCollapse: 'collapse',
+  margin: `${vars.space.sm} 0`,
+  fontSize: vars.fontSize.xs,
+  width: '100%',
+})
+
+globalStyle(`${markdown} th, ${markdown} td`, {
+  border: `1px solid ${vars.color.border}`,
+  padding: `${vars.space.xs} ${vars.space.sm}`,
+  textAlign: 'left',
+})
+
+globalStyle(`${markdown} th`, {
+  backgroundColor: vars.color.background,
+  fontWeight: 600,
+})
+
+globalStyle(`${markdown} blockquote`, {
+  margin: `${vars.space.xs} 0`,
+  paddingLeft: vars.space.sm,
+  borderLeft: `3px solid ${vars.color.border}`,
+  color: vars.color.foregroundSecondary,
+})
+
+globalStyle(`${markdown} a`, {
+  color: vars.color.primary,
+  textDecoration: 'none',
+})
+
+globalStyle(`${markdown} a:hover`, {
+  textDecoration: 'underline',
+})
+
+globalStyle(`${markdown} hr`, {
+  border: 'none',
+  borderTop: `1px solid ${vars.color.border}`,
+  margin: `${vars.space.sm} 0`,
 })

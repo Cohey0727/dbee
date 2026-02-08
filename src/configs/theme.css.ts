@@ -70,8 +70,8 @@ export const darkTheme = createTheme(vars, {
     xl: '16px',
   },
   fontFamily: {
-    base: '"Nunito Sans", "Hiragino Maru Gothic Pro", "Rounded Mplus 1c", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-    mono: '"Fira Code", "JetBrains Mono", "Cascadia Code", "Roboto Mono", Menlo, monospace',
+    base: '-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, "Segoe UI", sans-serif',
+    mono: '"Fira Code", "JetBrains Mono", "Cascadia Code", "Roboto Mono", Menlo, "Hiragino Kaku Gothic ProN", Meiryo, monospace',
   },
   radius: {
     sm: '6px',
@@ -93,10 +93,11 @@ globalStyle('html, body', {
 })
 
 globalStyle('body', {
-  fontFamily: vars.fontFamily.base,
-  fontSize: vars.fontSize.md,
-  color: vars.color.foreground,
-  backgroundColor: vars.color.background,
+  fontFamily:
+    '-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, "Segoe UI", sans-serif',
+  fontSize: '13px',
+  color: '#cccccc',
+  backgroundColor: '#1e1e1e',
   lineHeight: 1.5,
   WebkitFontSmoothing: 'antialiased',
   MozOsxFontSmoothing: 'grayscale',

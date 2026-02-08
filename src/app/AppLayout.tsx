@@ -1,10 +1,11 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 import { Tabs } from '../components/molecules/Tabs'
 import { SplitPane } from '../components/molecules/SplitPane'
 import { TitleBar } from '../components/organisms/TitleBar'
 import { StatusBar } from '../components/organisms/StatusBar'
 import { AiPanel } from '../features/ai/components/AiPanel'
+import { useAiStore } from '../features/ai/stores/aiStore'
 import { SqlEditor, type SqlEditorHandle } from '../features/editor/components/SqlEditor'
 import { ResultsTable } from '../features/results/components/ResultsTable'
 import { SchemaSidebar } from '../features/schema/components/SchemaSidebar'
@@ -25,7 +26,65 @@ export function AppLayout() {
     appendWhereClause,
   } = useEditor()
 
+  const { isPanelOpen } = useAiStore()
+
   const editorRef = useRef<SqlEditorHandle>(null)
+  const [sidebarWidth, setSidebarWidth] = useState(240)
+  const [aiPanelWidth, setAiPanelWidth] = useState(320)
+
+  const handleDividerMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      const startX = e.clientX
+      const startWidth = sidebarWidth
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const delta = moveEvent.clientX - startX
+        const newWidth = Math.min(400, Math.max(180, startWidth + delta))
+        setSidebarWidth(newWidth)
+      }
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    },
+    [sidebarWidth]
+  )
+
+  const handleAiDividerMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      const startX = e.clientX
+      const startWidth = aiPanelWidth
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const delta = startX - moveEvent.clientX
+        const newWidth = Math.min(560, Math.max(240, startWidth + delta))
+        setAiPanelWidth(newWidth)
+      }
+
+      const handleMouseUp = () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    },
+    [aiPanelWidth]
+  )
 
   const handleTableDoubleClick = useCallback(
     (tableName: string) => {
@@ -50,7 +109,13 @@ export function AppLayout() {
       <TitleBar />
 
       <div className={styles.main}>
-        <SchemaSidebar onTableDoubleClick={handleTableDoubleClick} />
+        <div className={styles.sidebarArea} style={{ width: sidebarWidth }}>
+          <SchemaSidebar onTableDoubleClick={handleTableDoubleClick} />
+        </div>
+        <div
+          className={styles.sidebarDivider}
+          onMouseDown={handleDividerMouseDown}
+        />
 
         <div className={styles.content}>
           <Tabs
@@ -72,7 +137,17 @@ export function AppLayout() {
           </Tabs>
         </div>
 
-        <AiPanel />
+        {isPanelOpen && (
+          <>
+            <div
+              className={styles.aiPanelDivider}
+              onMouseDown={handleAiDividerMouseDown}
+            />
+            <div className={styles.aiPanelArea} style={{ width: aiPanelWidth }}>
+              <AiPanel />
+            </div>
+          </>
+        )}
       </div>
 
       <StatusBar />

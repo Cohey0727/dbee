@@ -5,10 +5,9 @@ import { vars } from '../../../configs/theme.css'
 export const sidebar = style({
   display: 'flex',
   flexDirection: 'column',
-  width: '240px',
+  width: '100%',
   minWidth: '180px',
   maxWidth: '400px',
-  flexShrink: 0,
   backgroundColor: vars.color.backgroundSecondary,
   borderRight: `1px solid ${vars.color.border}`,
   overflow: 'hidden',

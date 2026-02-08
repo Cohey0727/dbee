@@ -11,22 +11,25 @@ export function useEditor() {
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? tabs[0]
 
-  const runQuery = useCallback(async () => {
-    if (!activeTab?.content.trim()) return
+  const runQuery = useCallback(
+    async (query: string) => {
+      if (!query.trim()) return
 
-    setExecuting(true)
-    setError(null)
+      setExecuting(true)
+      setError(null)
 
-    try {
-      const results = await executeQuery(activeTab.content)
-      setResults(results)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      setError(errorMessage)
-    } finally {
-      setExecuting(false)
-    }
-  }, [activeTab, setResults, setExecuting, setError])
+      try {
+        const results = await executeQuery(query)
+        setResults(results)
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : String(err)
+        setError(errorMessage)
+      } finally {
+        setExecuting(false)
+      }
+    },
+    [setResults, setExecuting, setError]
+  )
 
   const runQueryWithContent = useCallback(
     async (query: string) => {
