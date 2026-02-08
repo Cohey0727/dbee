@@ -1,4 +1,4 @@
-import { Database, LogOut, MessageSquare, RefreshCw } from 'lucide-react'
+import { LogOut, MessageSquare, RefreshCw } from 'lucide-react'
 
 import { Button } from '../atoms/Button'
 import { useAiStore } from '../../features/ai/stores/aiStore'
@@ -12,7 +12,7 @@ export function TitleBar() {
   return (
     <div className={styles.container}>
       <div className={styles.title}>
-        <Database size={16} />
+        <img src="/logo_white.png" alt="DBee" className={styles.logo} />
         <span>DBee</span>
         {connection && <span className={styles.connectionName}>- {connection.name}</span>}
       </div>

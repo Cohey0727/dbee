@@ -1,4 +1,4 @@
-import { Database, Loader2, Plus } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import type { SavedConnection } from '../../../types/database'
@@ -75,7 +75,7 @@ export function ConnectionList() {
     <div className={styles.container}>
       <div className={styles.hero}>
         <div className={styles.logoContainer}>
-          <Database size={32} strokeWidth={1.5} />
+          <img src="/logo_white.png" alt="DBee" className={styles.logoImage} />
         </div>
         <h1 className={styles.appName}>DBee</h1>
         <p className={styles.tagline}>PostgreSQL Database Client</p>

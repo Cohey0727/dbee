@@ -15,6 +15,11 @@ export const container = style({
   WebkitAppRegion: 'drag',
 })
 
+export const logo = style({
+  height: '18px',
+  width: 'auto',
+})
+
 export const title = style({
   display: 'flex',
   alignItems: 'center',

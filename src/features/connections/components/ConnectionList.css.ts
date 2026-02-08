@@ -30,7 +30,11 @@ export const logoContainer = style({
   borderRadius: '20px',
   background: 'linear-gradient(135deg, #007acc 0%, #0098ff 100%)',
   boxShadow: '0 8px 32px rgba(0, 122, 204, 0.3)',
-  color: '#ffffff',
+})
+
+export const logoImage = style({
+  width: '44px',
+  height: 'auto',
 })
 
 export const appName = style({
