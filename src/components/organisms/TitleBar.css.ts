@@ -7,9 +7,12 @@ export const container = style({
   alignItems: 'center',
   justifyContent: 'space-between',
   height: '40px',
-  padding: `0 ${vars.space.md}`,
+  paddingLeft: '80px',
+  paddingRight: vars.space.md,
   backgroundColor: vars.color.backgroundSecondary,
   borderBottom: `1px solid ${vars.color.border}`,
+  // @ts-expect-error Tauri-specific CSS property for window drag
+  WebkitAppRegion: 'drag',
 })
 
 export const title = style({
@@ -30,6 +33,8 @@ export const actions = style({
   display: 'flex',
   alignItems: 'center',
   gap: vars.space.sm,
+  // @ts-expect-error Tauri-specific CSS property to exclude from window drag
+  WebkitAppRegion: 'no-drag',
 })
 
 const spin = keyframes({
