@@ -73,6 +73,20 @@ export interface EditorState {
   activeTabId: string | null
 }
 
+export const persistedTabSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  content: z.string(),
+})
+
+export const persistedEditorStateSchema = z.object({
+  tabs: z.array(persistedTabSchema),
+  activeTabId: z.string().nullable(),
+})
+
+export type PersistedTab = z.infer<typeof persistedTabSchema>
+export type PersistedEditorState = z.infer<typeof persistedEditorStateSchema>
+
 export interface QueryError {
   message: string
   code?: string

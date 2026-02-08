@@ -7,6 +7,7 @@ import { EditorProvider } from '../features/editor/stores/editorStore'
 import { SchemaProvider, useSchemaStore } from '../features/schema/stores/schemaStore'
 import { ResultsProvider } from '../features/results/stores/resultsStore'
 import { ConnectionList } from '../features/connections/components/ConnectionList'
+import { useTabPersistence } from '../features/editor/hooks/useTabPersistence'
 import { AppLayout } from './AppLayout'
 
 const queryClient = new QueryClient({
@@ -20,6 +21,7 @@ const queryClient = new QueryClient({
 
 function AppContent() {
   const { connection } = useSchemaStore()
+  useTabPersistence()
 
   if (!connection) {
     return <ConnectionList />
