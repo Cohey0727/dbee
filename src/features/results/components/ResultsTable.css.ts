@@ -166,3 +166,115 @@ export const executionTime = style({
   fontSize: vars.fontSize.xs,
   color: vars.color.foregroundSecondary,
 })
+
+export const rowNumberHeader = style({
+  position: 'sticky',
+  top: 0,
+  left: 0,
+  zIndex: 2,
+  padding: `${vars.space.sm} ${vars.space.sm}`,
+  backgroundColor: vars.color.backgroundSecondary,
+  borderBottom: `1px solid ${vars.color.border}`,
+  borderRight: `1px solid ${vars.color.border}`,
+  textAlign: 'center',
+  fontWeight: 600,
+  color: vars.color.foregroundSecondary,
+  whiteSpace: 'nowrap',
+  width: '1px',
+  minWidth: '40px',
+  cursor: 'pointer',
+  userSelect: 'none',
+})
+
+export const rowNumberCell = style({
+  position: 'sticky',
+  left: 0,
+  zIndex: 1,
+  padding: `${vars.space.xs} ${vars.space.sm}`,
+  backgroundColor: vars.color.background,
+  borderBottom: `1px solid ${vars.color.border}`,
+  borderRight: `1px solid ${vars.color.border}`,
+  color: vars.color.foregroundSecondary,
+  textAlign: 'center',
+  whiteSpace: 'nowrap',
+  width: '1px',
+  minWidth: '40px',
+  cursor: 'pointer',
+  userSelect: 'none',
+  fontSize: vars.fontSize.xs,
+
+  ':hover': {
+    backgroundColor: vars.color.backgroundTertiary,
+    color: vars.color.foreground,
+  },
+})
+
+export const rowNumberCellSelected = style([
+  rowNumberCell,
+  {
+    backgroundColor: vars.color.primary,
+    color: vars.color.background,
+
+    ':hover': {
+      backgroundColor: vars.color.primaryHover,
+      color: vars.color.background,
+    },
+  },
+])
+
+export const trRowSelected = style({
+  selectors: {
+    '&&, &&:nth-child(even), &&:hover': {
+      backgroundColor: 'rgba(0, 122, 204, 0.1)',
+    },
+  },
+})
+
+export const rowActionBar = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: vars.space.sm,
+  padding: `${vars.space.xs} ${vars.space.md}`,
+  backgroundColor: vars.color.backgroundSecondary,
+  borderTop: `1px solid ${vars.color.border}`,
+  fontSize: vars.fontSize.sm,
+  color: vars.color.foregroundSecondary,
+  flexShrink: 0,
+})
+
+export const rowActionButton = style({
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: vars.space.xs,
+  padding: `${vars.space.xs} ${vars.space.sm}`,
+  backgroundColor: 'transparent',
+  border: `1px solid ${vars.color.border}`,
+  borderRadius: vars.radius.sm,
+  color: vars.color.foreground,
+  fontSize: vars.fontSize.sm,
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+
+  ':hover': {
+    backgroundColor: vars.color.backgroundTertiary,
+    borderColor: vars.color.foregroundSecondary,
+  },
+})
+
+export const rowActionButtonDanger = style([
+  rowActionButton,
+  {
+    color: vars.color.error,
+    borderColor: vars.color.error,
+
+    ':hover': {
+      backgroundColor: 'rgba(241, 76, 76, 0.1)',
+      borderColor: vars.color.error,
+    },
+  },
+])
+
+export const rowActionLabel = style({
+  color: vars.color.foreground,
+  fontWeight: 500,
+})

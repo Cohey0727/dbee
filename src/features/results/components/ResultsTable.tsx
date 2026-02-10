@@ -23,6 +23,11 @@ interface Selection {
   focusCell: number
 }
 
+interface RowSelection {
+  anchor: number
+  focus: number
+}
+
 interface ResultsTableProps {
   onAddWhereClause?: (column: string, value: unknown) => void
 }
@@ -36,6 +41,13 @@ function getSelectionBounds(sel: Selection) {
   }
 }
 
+function getRowSelectionBounds(sel: RowSelection) {
+  return {
+    minRow: Math.min(sel.anchor, sel.focus),
+    maxRow: Math.max(sel.anchor, sel.focus),
+  }
+}
+
 export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
   const { results, isExecuting, error } = useResultsStore()
   const tableRef = useRef<HTMLTableElement>(null)
@@ -44,17 +56,42 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
   const [modifications, setModifications] = useState<Map<string, CellEdit>>(new Map())
   const [selection, setSelection] = useState<Selection | null>(null)
   const [copiedCells, setCopiedCells] = useState<Set<string> | null>(null)
+  const [rowSelection, setRowSelection] = useState<RowSelection | null>(null)
   const isDragging = useRef(false)
 
   const getCellKey = (rowIndex: number, cellIndex: number) => `${rowIndex}-${cellIndex}`
 
+  const isRowSelected = useCallback(
+    (rowIndex: number): boolean => {
+      if (!rowSelection) return false
+      const { minRow, maxRow } = getRowSelectionBounds(rowSelection)
+      return rowIndex >= minRow && rowIndex <= maxRow
+    },
+    [rowSelection]
+  )
+
+  const getSelectedRowIndices = useCallback((): number[] => {
+    if (!rowSelection) return []
+    const { minRow, maxRow } = getRowSelectionBounds(rowSelection)
+    const indices: number[] = []
+    for (let i = minRow; i <= maxRow; i++) {
+      indices.push(i)
+    }
+    return indices
+  }, [rowSelection])
+
+  const selectedRowCount = rowSelection
+    ? Math.abs(rowSelection.focus - rowSelection.anchor) + 1
+    : 0
+
   const isCellInSelection = useCallback(
     (rowIndex: number, cellIndex: number): boolean => {
+      if (rowSelection) return isRowSelected(rowIndex)
       if (!selection) return false
       const { minRow, maxRow, minCell, maxCell } = getSelectionBounds(selection)
       return rowIndex >= minRow && rowIndex <= maxRow && cellIndex >= minCell && cellIndex <= maxCell
     },
-    [selection]
+    [selection, rowSelection, isRowSelected]
   )
 
   const isFocusCell = useCallback(
@@ -72,6 +109,7 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
 
   const selectCell = useCallback((rowIndex: number, cellIndex: number) => {
     setSelection({ anchorRow: rowIndex, anchorCell: cellIndex, focusRow: rowIndex, focusCell: cellIndex })
+    setRowSelection(null)
   }, [])
 
   const extendSelection = useCallback(
@@ -90,6 +128,48 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
     },
     []
   )
+
+  const handleRowSelect = useCallback(
+    (rowIndex: number, shiftKey: boolean) => {
+      if (shiftKey && rowSelection) {
+        setRowSelection({ ...rowSelection, focus: rowIndex })
+      } else {
+        setRowSelection({ anchor: rowIndex, focus: rowIndex })
+      }
+      setSelection(null)
+      setEditingCell(null)
+    },
+    [rowSelection]
+  )
+
+  const handleSelectAllRows = useCallback(() => {
+    if (!results) return
+    if (rowSelection) {
+      const { minRow, maxRow } = getRowSelectionBounds(rowSelection)
+      if (minRow === 0 && maxRow === results.rows.length - 1) {
+        setRowSelection(null)
+        return
+      }
+    }
+    setRowSelection({ anchor: 0, focus: results.rows.length - 1 })
+    setSelection(null)
+    setEditingCell(null)
+  }, [results, rowSelection])
+
+  const handleCopySelectedRows = useCallback(() => {
+    if (!rowSelection || !results) return
+
+    const indices = getSelectedRowIndices()
+    const lines = indices.map((rowIndex) => {
+      const cells = results.rows[rowIndex].map((cell, cellIndex) =>
+        getCellValue(rowIndex, cellIndex, cell)
+      )
+      return cells.join('\t')
+    })
+
+    const header = results.columns.join('\t')
+    navigator.clipboard.writeText([header, ...lines].join('\n'))
+  }, [rowSelection, results, getSelectedRowIndices, modifications])
 
   const startEditing = useCallback(
     (rowIndex: number, cellIndex: number, currentValue: unknown) => {
@@ -223,6 +303,32 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
     return () => window.removeEventListener('mouseup', handleMouseUp)
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!rowSelection) return
+
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setRowSelection(null)
+        return
+      }
+
+      if (e.key === 'c' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        handleCopySelectedRows()
+        return
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [rowSelection, handleCopySelectedRows])
+
   const handleKeyDown = useCallback(
     (
       e: React.KeyboardEvent<HTMLTableCellElement>,
@@ -319,6 +425,7 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
   const getCellStyle = (rowIndex: number, cellIndex: number): string => {
     const key = getCellKey(rowIndex, cellIndex)
     if (copiedCells?.has(key)) return styles.tdCopied
+    if (rowSelection && isRowSelected(rowIndex)) return styles.tdSelected
     if (isFocusCell(rowIndex, cellIndex) && isMultiSelection()) return styles.tdFocus
     if (isCellInSelection(rowIndex, cellIndex)) return styles.tdSelected
     if (isCellModified(rowIndex, cellIndex)) return styles.tdModified
@@ -379,6 +486,12 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
         <table ref={tableRef} className={styles.table}>
           <thead>
             <tr>
+              <th
+                className={styles.rowNumberHeader}
+                onClick={handleSelectAllRows}
+              >
+                #
+              </th>
               {results.columns.map((column, i) => (
                 <th key={i} className={styles.th}>
                   {column}
@@ -388,7 +501,20 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
           </thead>
           <tbody>
             {results.rows.map((row, rowIndex) => (
-              <tr key={rowIndex} className={styles.tr}>
+              <tr
+                key={rowIndex}
+                className={`${styles.tr}${isRowSelected(rowIndex) ? ` ${styles.trRowSelected}` : ''}`}
+              >
+                <td
+                  className={
+                    isRowSelected(rowIndex)
+                      ? styles.rowNumberCellSelected
+                      : styles.rowNumberCell
+                  }
+                  onClick={(e) => handleRowSelect(rowIndex, e.shiftKey)}
+                >
+                  {rowIndex + 1}
+                </td>
                 {row.map((cell, cellIndex) => {
                   if (isEditingCell(rowIndex, cellIndex)) {
                     return (
@@ -433,6 +559,22 @@ export function ResultsTable({ onAddWhereClause }: ResultsTableProps) {
           </tbody>
         </table>
       </div>
+      {rowSelection && (
+        <div className={styles.rowActionBar}>
+          <span className={styles.rowActionLabel}>
+            {selectedRowCount} row{selectedRowCount > 1 ? 's' : ''} selected
+          </span>
+          <button
+            className={styles.rowActionButton}
+            onClick={handleCopySelectedRows}
+          >
+            Copy
+          </button>
+          <button className={styles.rowActionButtonDanger}>
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   )
 }
