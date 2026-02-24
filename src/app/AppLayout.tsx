@@ -21,6 +21,7 @@ export function AppLayout() {
     closeTab,
     setActiveTab,
     updateTabContent,
+    updateTabName,
     runQuery,
     runQueryWithContent,
     appendWhereClause,
@@ -90,8 +91,11 @@ export function AppLayout() {
     (tableName: string) => {
       const query = `SELECT * FROM ${tableName};`
       runQueryWithContent(query)
+      if (activeTab) {
+        updateTabName(activeTab.id, tableName)
+      }
     },
-    [runQueryWithContent]
+    [runQueryWithContent, activeTab, updateTabName]
   )
 
   const handleAddWhereClause = useCallback(

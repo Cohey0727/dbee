@@ -5,7 +5,8 @@ import { useResultsStore } from '../../results/stores/resultsStore'
 import { executeQuery } from '../api/queryApi'
 
 export function useEditor() {
-  const { tabs, activeTabId, addTab, closeTab, setActiveTab, updateTabContent } = useEditorStore()
+  const { tabs, activeTabId, addTab, closeTab, setActiveTab, updateTabContent, updateTabName } =
+    useEditorStore()
 
   const { setResults, setExecuting, setError } = useResultsStore()
 
@@ -88,6 +89,7 @@ export function useEditor() {
     closeTab,
     setActiveTab,
     updateTabContent: handleContentChange,
+    updateTabName,
     runQuery,
     runQueryWithContent,
     appendWhereClause,
