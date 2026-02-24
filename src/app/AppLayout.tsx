@@ -89,7 +89,7 @@ export function AppLayout() {
 
   const handleTableDoubleClick = useCallback(
     (tableName: string) => {
-      const query = `SELECT * FROM ${tableName};`
+      const query = `SELECT * FROM ${tableName} LIMIT 500;`
       runQueryWithContent(query)
       if (activeTab) {
         updateTabName(activeTab.id, tableName)
